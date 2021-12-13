@@ -114,29 +114,81 @@ class PlayerAI(BaseAI):
             return False
 
     def getTrap(self, grid: Grid) -> tuple:
-        """ 
-        YOUR CODE GOES HERE
+        new_grid = self.trap_decision(grid)
+        new_position = new_grid.find(self.player_num)
+        return new_position
 
-        The function should return a tuple of (x,y) coordinates to which the player *WANTS* to throw the trap.
-        
-        It should be the result of the ExpectiMinimax algorithm, maximizing over the Opponent's *Move* actions, 
-        taking into account the probabilities of it landing in the positions you want. 
-        
-        Note that you are not required to account for the probabilities of it landing in a different cell.
+    def trap_decision(self, grid: Grid):
+        alpha = -1000000
+        beta = 1000000
+        child, utility = self.trap_max(grid, 0, alpha, beta)
+        return child
 
-        You may adjust the input variables as you wish (though it is not necessary). Output has to be (x,y) coordinates.
-        
-        """
-
-        # find opponent
+    def trap_max(self, grid: Grid, depth, alpha, beta):
+        if self.is_terminal(grid) or depth > 5:
+            return None, self.trap_evaluate(grid)
+        max_utility = -1000
+        max_child = None
+        mypos = grid.find(self.player_num)
         opponent = grid.find(3 - self.player_num)
+        children = grid.get_neighbors(opponent, only_available=True)
 
-        # find all available cells surrounding Opponent
-        available_cells = grid.get_neighbors(opponent, only_available=True)
+        if not children:
+            return random.choice(grid.getAvailableCells())
 
-        # throw to one of the available cells randomly
-        trap = random.choice(available_cells)
+        children = grid.get_neighbors(opponent, only_available=True)
+        for i in children:
+            mandist = abs(mypos[0] - i[0]) + abs(mypos[1] + i[1])
+            p = 1 - 0.05 * (mandist - 1)
+            child_grid = grid.clone()
+            child_grid.trap(i)
+            child_utility = p * self.trap_min(child_grid, depth+1, alpha, beta)[1]
+            if child_utility > max_utility:
+                max_child = child_grid
+                max_utility = child_utility
+            if max_utility >= beta:
+                break
+            if max_utility > alpha:
+                alpha = max_utility
+        return max_child, max_utility
 
-        return trap
+    def trap_min(self, grid: Grid, depth, alpha, beta):
+        if self.is_terminal(grid) or depth > 5:
+            return None, self.trap_evaluate(grid)
+
+        min_utility = 1000
+        min_child = None
+        opposition = grid.find(3 - self.player_num)
+        children = grid.get_neighbors(opposition, only_available=True)
+        for i in children:
+            child_grid = grid.clone()
+            child_grid.move(i, opposition)
+            child_utility = self.trap_max(child_grid, depth + 1, alpha, beta)[1]
+            if child_utility < min_utility:
+                min_child = child_grid
+                min_utility = child_utility
+            if min_utility <= alpha:
+                break
+            if min_utility < beta:
+                beta = min_utility
+        return min_child, min_utility
+
+
+        children = grid.get_neighbors(grid.find(self.player_num), only_available=True)
+        for i in children:
+            child_grid = grid.clone()
+            child_grid.trap(i)
+            child_utility = self.move_max(child_grid, depth + 1, alpha, beta)[1]
+            if child_utility < min_utility:
+                min_child = child_grid
+                min_utility = child_utility
+            if min_utility <= alpha:
+                break
+            if min_utility < beta:
+                beta = min_utility
+        return min_child, min_utility
+
+
+    def trap_evaluate(self, grid: Grid):
 
 
