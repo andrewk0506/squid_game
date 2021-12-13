@@ -44,12 +44,15 @@ class PlayerAI(BaseAI):
             return None, self.move_evaluate(grid)
         min_utility = 1000
         min_child = None
+        mypos = grid.find(self.player_num)
         children = grid.get_neighbors(grid.find(self.player_num), only_available=True)
         for i in children:
+            mandist = abs(mypos[0] - i[0]) + abs(mypos[1] + i[1])
+            p = 1 - 0.05 * (mandist - 1)
             child_grid = grid.clone()
             #make opponent move
             child_grid.trap(i)
-            child_utility = self.move_max(child_grid, depth+1, alpha, beta)[1]
+            child_utility = p * self.move_max(child_grid, depth+1, alpha, beta)[1]
             if child_utility < min_utility:
                 min_child = child_grid
                 min_utility = child_utility
@@ -161,21 +164,6 @@ class PlayerAI(BaseAI):
             child_grid = grid.clone()
             child_grid.move(i, opposition)
             child_utility = self.trap_max(child_grid, depth + 1, alpha, beta)[1]
-            if child_utility < min_utility:
-                min_child = child_grid
-                min_utility = child_utility
-            if min_utility <= alpha:
-                break
-            if min_utility < beta:
-                beta = min_utility
-        return min_child, min_utility
-
-
-        children = grid.get_neighbors(grid.find(self.player_num), only_available=True)
-        for i in children:
-            child_grid = grid.clone()
-            child_grid.trap(i)
-            child_utility = self.move_max(child_grid, depth + 1, alpha, beta)[1]
             if child_utility < min_utility:
                 min_child = child_grid
                 min_utility = child_utility
