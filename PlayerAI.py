@@ -113,9 +113,8 @@ class PlayerAI(BaseAI):
             return False
 
     def getTrap(self, grid: Grid) -> tuple:
-        new_grid = self.trap_decision(grid)
-        new_position = new_grid.find(self.player_num)
-        return new_position
+        new_trap = self.trap_decision(grid)
+        return new_trap
 
     def trap_decision(self, grid: Grid):
         alpha = -1000000
@@ -135,7 +134,6 @@ class PlayerAI(BaseAI):
         if not children:
             return random.choice(grid.getAvailableCells())
 
-        children = grid.get_neighbors(opponent, only_available=True)
         for i in children:
             mandist = abs(mypos[0] - i[0]) + abs(mypos[1] + i[1])
             p = 1 - 0.05 * (mandist - 1)
@@ -144,7 +142,7 @@ class PlayerAI(BaseAI):
             child_grid.trap(i)
             child_utility = p * self.trap_min(child_grid, depth+1, alpha, beta)[1]
             if child_utility > max_utility:
-                max_child = child_grid
+                max_child = i
                 max_utility = child_utility
             if max_utility >= beta:
                 break
@@ -162,10 +160,10 @@ class PlayerAI(BaseAI):
         children = grid.get_neighbors(opposition, only_available=True)
         for i in children:
             child_grid = grid.clone()
-            child_grid.move(i, opposition)
+            child_grid.move(i, 3 - self.player_num)
             child_utility = self.trap_max(child_grid, depth + 1, alpha, beta)[1]
             if child_utility < min_utility:
-                min_child = child_grid
+                min_child = i
                 min_utility = child_utility
             if min_utility <= alpha:
                 break
