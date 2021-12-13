@@ -86,24 +86,18 @@ class PlayerAI(BaseAI):
         return child
 
     def move_evaluate(self, grid: Grid):
-        opponent_number = 3 - self.player_num
-        opponent_pos = grid.find(opponent_number)
-        opponent_neighbours = grid.get_neighbors(opponent_pos, only_available=True)
         own_neighbours = grid.get_neighbors(grid.find(self.player_num), only_available=True)
-
         bigger_neighbours = set(own_neighbours)
         for i in own_neighbours:
             i_neighbours = grid.get_neighbors(i, only_available=True)
             for j in i_neighbours:
                 bigger_neighbours.add(j)
 
-        score = len(bigger_neighbours)
+        own = len(own_neighbours)/8
+        bigger = len(bigger_neighbours)/24
+        score = own + bigger
 
         return score
-
-    def trap_evaluate(self, grid: Grid):
-
-        return 0
 
     def is_terminal(self, grid: Grid):
         opponent_number = 3 - self.player_num
