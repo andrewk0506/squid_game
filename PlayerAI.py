@@ -170,34 +170,18 @@ class PlayerAI(BaseAI):
                 beta = min_utility
         return min_child, min_utility
 
-
-        children = grid.get_neighbors(grid.find(self.player_num), only_available=True)
-        for i in children:
-            child_grid = grid.clone()
-            child_grid.trap(i)
-            child_utility = self.move_max(child_grid, depth + 1, alpha, beta)[1]
-            if child_utility < min_utility:
-                min_child = child_grid
-                min_utility = child_utility
-            if min_utility <= alpha:
-                break
-            if min_utility < beta:
-                beta = min_utility
-        return min_child, min_utility
-
     def trap_evaluate(self, grid: Grid):
         opponent_number = 3 - self.player_num
         opponent_pos = grid.find(opponent_number)
         opponent_neighbours = grid.get_neighbors(opponent_pos, only_available=True)
-
-
-        bigger_neighbours = set(own_neighbours)
-        for i in own_neighbours:
+        bigger_neighbours = set(opponent_neighbours)
+        for i in opponent_neighbours:
             i_neighbours = grid.get_neighbors(i, only_available=True)
             for j in i_neighbours:
                 bigger_neighbours.add(j)
 
-        score = len(bigger_neighbours)
+        opponent = len(opponent_neighbours) / 8
+        bigger = len(bigger_neighbours) / 24
+        score = opponent + bigger
 
         return score
-
