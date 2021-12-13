@@ -177,15 +177,14 @@ class PlayerAI(BaseAI):
         opponent_number = 3 - self.player_num
         opponent_pos = grid.find(opponent_number)
         opponent_neighbours = grid.get_neighbors(opponent_pos, only_available=True)
-
-
-        bigger_neighbours = set(own_neighbours)
-        for i in own_neighbours:
+        bigger_neighbours = set(opponent_neighbours)
+        for i in opponent_neighbours:
             i_neighbours = grid.get_neighbors(i, only_available=True)
             for j in i_neighbours:
                 bigger_neighbours.add(j)
 
-        score = len(bigger_neighbours)
+        opponent = len(opponent_neighbours) / 8
+        bigger = len(bigger_neighbours) / 24
+        score = -(opponent + bigger)
 
         return score
-
