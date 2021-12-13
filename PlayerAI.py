@@ -182,6 +182,6 @@ class PlayerAI(BaseAI):
 
         opponent = len(opponent_neighbours) / 8
         bigger = len(bigger_neighbours) / 24
-        score = opponent + bigger
+        score = -(opponent + bigger)
 
         return score
