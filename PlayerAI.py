@@ -135,7 +135,6 @@ class PlayerAI(BaseAI):
         if not children:
             return random.choice(grid.getAvailableCells())
 
-        children = grid.get_neighbors(opponent, only_available=True)
         for i in children:
             mandist = abs(mypos[0] - i[0]) + abs(mypos[1] + i[1])
             p = 1 - 0.05 * (mandist - 1)
@@ -162,7 +161,7 @@ class PlayerAI(BaseAI):
         children = grid.get_neighbors(opposition, only_available=True)
         for i in children:
             child_grid = grid.clone()
-            child_grid.move(i, opposition)
+            child_grid.move(i, 3 - self.player_num)
             child_utility = self.trap_max(child_grid, depth + 1, alpha, beta)[1]
             if child_utility < min_utility:
                 min_child = child_grid
